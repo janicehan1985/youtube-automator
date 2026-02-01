@@ -1,0 +1,17 @@
+{
+  "name": "youtube-automator",
+  "version": "1.0.0",
+  "description": "Automated lofi nature video generator for YouTube",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "generate": "node generate-video.js",
+    "upload": "node upload-video.js"
+  },
+  "dependencies": {
+    "googleapis": "^130.0.0",
+    "puppeteer": "^23.0.0",
+    "dotenv": "^16.4.0",
+    "fs-extra": "^11.2.0"
+  }
+}
