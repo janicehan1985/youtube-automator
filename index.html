@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Content Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .header-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .header-links a:hover, .header-links a.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-content {
+            padding: 16px 24px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            gap: 16px;
+        }
+        
+        .file-item:hover {
+            background: rgba(255,255,255,0.06);
+        }
+        
+        .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .file-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.9);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .file-meta {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 4px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .btn-copy {
+            background: #5e6ad2;
+            color: #fff;
+        }
+        
+        .btn-copy:hover {
+            background: #4f5ac9;
+        }
+        
+        .btn-primary {
+            background: #5e6ad2;
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background: #4f5ac9;
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .quick-btn {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .quick-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #5e6ad2;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Scrollbar styling */
+        .section-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .section-content::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+        }
+        
+        .section-content::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+        
+        /* Workflow Tab */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .workflow-container {
+            padding: 24px;
+        }
+        
+        .workflow-textarea {
+            width: 100%;
+            min-height: 500px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            padding: 16px;
+            line-height: 1.6;
+            resize: vertical;
+        }
+        
+        .workflow-textarea:focus {
+            outline: none;
+            border-color: #5e6ad2;
+        }
+        
+        .workflow-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎬 YouTube Manager</h1>
+    <div class="header-links">
+      <a href="#" onclick="switchTab('files')" id="tab-files" class="active">📹 Videos</a>
+      <a href="#" onclick="switchTab('workflow')" id="tab-workflow">📝 FFmpeg Workflow</a>
+      <a href="#" onclick="switchTab('docs')" id="tab-docs">📚 Full Documentation</a>
+      <a href="http://10.114.1.23:3001" target="_blank">YouTube Studio</a>
+    </div>
+  </div>
+  
+  <!-- Files Tab -->
+  <div id="tab-content-files" class="tab-content active">
+    <div class="container">
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="videoCount">-</div>
+          <div class="stat-label">Videos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="musicCount">-</div>
+          <div class="stat-label">Music Tracks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalSize">-</div>
+          <div class="stat-label">Total Size</div>
+        </div>
+      </div>
+      
+      <div class="quick-actions">
+        <button class="quick-btn" onclick="loadFiles()">🔄 Refresh</button>
+        <button class="quick-btn" onclick="copyAllForAI()">🤖 Copy All for AI</button>
+      </div>
+      
+      <!-- Music Section -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">🎵 Music Files</div>
+          <button class="btn btn-secondary" onclick="copyAllMusic()">Copy All Music Paths</button>
+        </div>
+        <div class="section-content">
+          <div id="musicList" class="file-list">
+            <div class="empty-state">
+              <div class="empty-icon">🎵</div>
+              <p>Loading music files...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Videos Section -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">📹 Video Files</div>
+          <button class="btn btn-secondary" onclick="copyAllVideos()">Copy All Video Paths</button>
+        </div>
+        <div class="section-content">
+          <div id="videoList" class="file-list">
+            <div class="empty-state">
+              <div class="empty-icon">📹</div>
+              <p>Loading video files...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Workflow Tab -->
+  <div id="tab-content-workflow" class="tab-content">
+    <div class="container">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">📝 FFmpeg Video Creation Workflow</div>
+          <button class="btn btn-secondary" onclick="copyWorkflow()">📋 Copy to Clipboard</button>
+        </div>
+        <div class="section-content workflow-container">
+          <textarea id="workflowText" class="workflow-textarea" spellcheck="false"># Christian Lofi Video Creation Workflow
+
+## Quick Reference (3 Steps)
+
+### 1. Concatenate Music
+```bash
+cd /home/janice
+for f in music/catalyst4god*.mp3; do echo "file '$f'" >> music.txt; done
+ffmpeg -y -f concat -safe 0 -i music.txt -c copy music-sequential.mp3
+```
+
+### 2. Loop Video
+```bash
+# Get durations
+MUSIC_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 music-sequential.mp3)
+VID_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 video-clips/YOUR_VIDEO.mp4)
+LOOPS=$(echo "scale=0; $MUSIC_DUR / $VID_DUR" | bc)
+
+for i in $(seq 1 $LOOPS); do echo "file 'video-clips/YOUR_VIDEO.mp4'" >> video.txt; done
+ffmpeg -y -f concat -safe 0 -i video.txt -c copy video-looped.mp4
+```
+
+### 3. Combine
+```bash
+ffmpeg -y -i video-looped.mp4 -i music-sequential.mp3 \
+    -c:v copy -c:a aac -b:a 192k -shortest \
+    /home/janice/videos/christian-lofi-$(date +%Y%m%d-%H%M%S).mp4
+```
+
+### Cleanup
+```bash
+rm -f music.txt video.txt music-sequential.mp3 video-looped.mp4
+```
+
+## Full 1-Hour Video Example
+
+```bash
+cd /home/janice
+
+# Step 1: Create 1-hour music playlist (repeat 6x)
+for i in $(seq 1 6); do
+    for f in music/catalyst4god*.mp3; do
+        echo "file '$f'" >> music-1hr.txt
+    done
+done
+
+# Concatenate
+ffmpeg -y -f concat -safe 0 -i music-1hr.txt -c copy music-1hour.mp3
+
+# Step 2: Loop video
+MUSIC_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 music-1hour.mp3)
+VID_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 video-clips/37088-413229662.mp4)
+LOOPS=$(echo "scale=0; $MUSIC_DUR / $VID_DUR" | bc)
+
+for i in $(seq 1 $LOOPS); do
+    echo "file 'video-clips/37088-413229662.mp4'" >> video-1hr.txt
+done
+ffmpeg -y -f concat -safe 0 -i video-1hr.txt -c copy video-1hour.mp4
+
+# Step 3: Combine
+ffmpeg -y -i video-1hour.mp4 -i music-1hour.mp3 \
+    -c:v copy -c:a aac -b:a 192k -shortest \
+    /home/janice/videos/christian-lofi-1hour.mp4
+
+# Cleanup
+rm -f music-1hour.mp3 video-1hour.mp4 music-1hr.txt video-1hr.txt
+```
+
+## File Locations
+- Music: /home/janice/music/
+- Video Clips: /home/janice/video-clips/
+- Output: /home/janice/videos/
+
+## Music Files Available
+- catalyst4god-altar-of-my-heart-2025-442156.mp3
+- catalyst4god-bells-of-november-114222.mp3
+- catalyst4god-lord-of-all-beachside-blessing-mix-192171.mp3
+- catalyst4god-luminescent-reverie-149354.mp3
+- catalyst4god-mercy-beats-divine-chillwave-lofi-drop-246862.mp3
+- catalyst4god-prince-of-peace-midknight-riders-peaceful-shores-lofi-remix-207345.mp3
+- catalyst4god-the-mercies-of-the-lord-lofi-refresh-edition-254052.mp3</textarea>
+          <div class="workflow-actions">
+            <button class="btn btn-primary" onclick="copyWorkflow()">📋 Copy to Clipboard</button>
+            <button class="btn btn-secondary" onclick="resetWorkflow()">🔄 Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Full Documentation Tab -->
+  <div id="tab-content-docs" class="tab-content">
+    <div class="container">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">📚 Christian Lofi Video Creation - Full Documentation</div>
+          <button class="btn btn-secondary" onclick="copyDocs()">📋 Copy to Clipboard</button>
+        </div>
+        <div class="section-content workflow-container">
+          <textarea id="docsText" class="workflow-textarea" spellcheck="false"># Christian Lofi Video Creation Workflow
+
+A repeatable process for creating 1-hour lofi videos with sequential music tracks.
+
+## Quick Summary
+
+| Step | Action | Duration |
+|------|--------|----------|
+| 1 | Concatenate music files | ~2 min |
+| 2 | Loop video to match music | ~2 min |
+| 3 | Combine video + music | ~10 min |
+| **Total** | **1-hour video** | **~15 min** |
+
+## Prerequisites
+
+- **Music files:** /home/janice/music/catalyst4god-*.mp3
+- **Video clips:** /home/janice/video-clips/
+- **Output directory:** /home/janice/videos/
+- **Working directory:** /home/janice
+
+## Step-by-Step Instructions
+
+### Step 1: Concatenate Music Files
+
+```bash
+cd /home/janice
+
+# List all music files (7 tracks)
+ls music/catalyst4god*.mp3
+
+# Create a playlist file
+for f in music/catalyst4god*.mp3; do
+    echo "file '$f'" >> music-playlist.txt
+done
+
+# Concatenate all music files
+ffmpeg -y -f concat -safe 0 -i music-playlist.txt -c copy music-sequential.mp3
+```
+
+**Result:** music-sequential.mp3 (~10 min duration)
+
+### Step 2: Loop Video to Match Music
+
+```bash
+cd /home/janice
+
+# Get durations
+MUSIC_DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 music-sequential.mp3)
+VIDEO_DURATION=$(ffmpeg -probe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 video-clips/YOUR_VIDEO.mp4)
+
+# Calculate loops needed (round up)
+LOOPS=$(echo "scale=0; ($MUSIC_DURATION / $VIDEO_DURATION)" | bc)
+
+echo "Music: $MUSIC_DURATION sec, Video: $VIDEO_DURATION sec, Loops: $LOOPS"
+
+# Create video playlist with loops
+for i in $(seq 1 $LOOPS); do
+    echo "file 'video-clips/YOUR_VIDEO.mp4'" >> video-playlist.txt
+done
+
+# Concatenate looped video
+ffmpeg -y -f concat -safe 0 -i video-playlist.txt -c copy video-looped.mp4
+```
+
+**Result:** video-looped.mp4 (same duration as music)
+
+### Step 3: Combine Video + Music
+
+```bash
+cd /home/janice
+
+# Final combine
+ffmpeg -y -i video-looped.mp4 -i music-sequential.mp3 \
+    -c:v copy -c:a aac -b:a 192k -shortest \
+    christian-lofi-$(date +%Y%m%d-%H%M%S).mp4
+
+# Move to final location
+mv christian-lofi-*.mp4 /home/janice/videos/
+```
+
+**Result:** Final output file in /home/janice/videos/
+
+## Example: 1-Hour Video (All 7 Music Files)
+
+```bash
+cd /home/janice
+
+# Step 1: Create 1-hour music playlist (repeat 6x)
+for i in $(seq 1 6); do
+    for f in music/catalyst4god*.mp3; do
+        echo "file '$f'" >> music-1hr.txt
+    done
+done
+
+# Concatenate
+ffmpeg -y -f concat -safe 0 -i music-1hr.txt -c copy music-1hour.mp3
+
+# Step 2: Loop video
+MUSIC_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 music-1hour.mp3)
+VID_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 video-clips/37088-413229662.mp4)
+LOOPS=$(echo "scale=0; $MUSIC_DUR / $VID_DUR" | bc)
+
+for i in $(seq 1 $LOOPS); do
+    echo "file 'video-clips/37088-413229662.mp4'" >> video-1hr.txt
+done
+ffmpeg -y -f concat -safe 0 -i video-1hr.txt -c copy video-1hour.mp4
+
+# Step 3: Combine
+ffmpeg -y -i video-1hour.mp4 -i music-1hour.mp3 \
+    -c:v copy -c:a aac -b:a 192k -shortest \
+    /home/janice/videos/christian-lofi-1hour.mp4
+
+# Cleanup
+rm -f music-1hour.mp3 video-1hour.mp4 music-1hr.txt video-1hr.txt
+```
+
+## File Sizes Reference
+
+| Output | Size | Duration |
+|--------|-------|----------|
+| catalyst4god music (7 files) | ~20 MB | ~10 min |
+| music-1hour.mp3 | ~243 MB | ~2 hr |
+| video-1hour.mp4 | ~9.7 GB | ~2 hr |
+| **Final Output** | **~5.4 GB** | **~1 hr** |
+
+## Cleanup Commands
+
+```bash
+cd /home/janice
+rm -f video-no-audio.mp4 video-looped.mp4 music-sequential.mp3
+rm -f music-1hour.mp3 video-1hour.mp4
+rm -f music-*.txt video-*.txt
+```
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| "No such file or directory" | Check paths: /home/janice/music/ and /home/janice/video-clips/ |
+| Video shorter than music | Increase loop count or extend video |
+| Audio/video out of sync | Use -shortest flag in final combine |
+| Low quality output | Use -c:v copy to avoid re-encoding video |
+
+## Expected Duration for 1-Hour Video
+
+- **Music files:** All 7 catalyst4god tracks = ~10 min
+- **Repeat factor:** 6x for 1 hour
+- **Total music files in playlist:** 42
+- **Video loops:** ~372 (based on 20-sec clip)
+
+---
+
+*Last updated: 2026-02-18*</textarea>
+          <div class="workflow-actions">
+            <button class="btn btn-primary" onclick="copyDocs()">📋 Copy to Clipboard</button>
+            <button class="btn btn-secondary" onclick="resetDocs()">🔄 Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="toast" class="toast">Copied!</div>
+  
+  <script>
+    const VIDEOS_DIR = '/root/clawd/output/videos';
+    const MUSIC_DIR = '/root/clawd/output/music';
+    
+    const DEFAULT_WORKFLOW = `# Christian Lofi Video Creation Workflow
+
+## Quick Reference (3 Steps)
+
+### 1. Concatenate Music
+\`\`\`bash
+cd /home/janice
+for f in music/catalyst4god*.mp3; do echo "file '$f'" >> music.txt; done
+ffmpeg -y -f concat -safe 0 -i music.txt -c copy music-sequential.mp3
+\`\`\`
+
+### 2. Loop Video
+\`\`\`bash
+MUSIC_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 music-sequential.mp3)
+VID_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 video-clips/YOUR_VIDEO.mp4)
+LOOPS=$(echo "scale=0; $MUSIC_DUR / $VID_DUR" | bc)
+
+for i in $(seq 1 $LOOPS); do echo "file 'video-clips/YOUR_VIDEO.mp4'" >> video.txt; done
+ffmpeg -y -f concat -safe 0 -i video.txt -c copy video-looped.mp4
+\`\`\`
+
+### 3. Combine
+\`\`\`bash
+ffmpeg -y -i video-looped.mp4 -i music-sequential.mp3 \\
+    -c:v copy -c:a aac -b:a 192k -shortest \\
+    /home/janice/videos/christian-lofi-\$(date +%Y%m%d-%H%M%S).mp4
+\`\`\`
+
+### Cleanup
+\`\`\`bash
+rm -f music.txt video.txt music-sequential.mp3 video-looped.mp4
+\`\`\`
+
+## 1-Hour Example
+Repeat music 6x, loop video ~372 times, combine with -shortest flag.
+
+## Music Files
+All 7 catalyst4god tracks in /home/janice/music/`;
+
+    const DEFAULT_DOCS = `# Christian Lofi Video Creation Workflow
+
+## Quick Summary
+
+| Step | Action | Duration |
+|------|--------|----------|
+| 1 | Concatenate music files | ~2 min |
+| 2 | Loop video to match music | ~2 min |
+| 3 | Combine video + music | ~10 min |
+| **Total** | **1-hour video** | **~15 min**
+
+## Prerequisites
+
+- **Music files:** /home/janice/music/catalyst4god-*.mp3
+- **Video clips:** /home/janice/video-clips/
+- **Output directory:** /home/janice/videos/
+- **Working directory:** /home/janice
+
+## Step-by-Step Instructions
+
+### Step 1: Concatenate Music Files
+
+\`\`\`bash
+cd /home/janice
+
+# List all music files (7 tracks)
+ls music/catalyst4god*.mp3
+
+# Create a playlist file
+for f in music/catalyst4god*.mp3; do
+    echo "file '$f'" >> music-playlist.txt
+done
+
+# Concatenate all music files
+ffmpeg -y -f concat -safe 0 -i music-playlist.txt -c copy music-sequential.mp3
+\`\`\`
+
+**Result:** music-sequential.mp3 (~10 min duration)
+
+### Step 2: Loop Video to Match Music
+
+\`\`\`bash
+cd /home/janice
+
+# Get durations
+MUSIC_DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 music-sequential.mp3)
+VIDEO_DURATION=$(ffmpeg -probe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 video-clips/YOUR_VIDEO.mp4)
+
+# Calculate loops needed (round up)
+LOOPS=$(echo "scale=0; ($MUSIC_DURATION / $VIDEO_DURATION)" | bc)
+
+# Create video playlist with loops
+for i in $(seq 1 $LOOPS); do
+    echo "file 'video-clips/YOUR_VIDEO.mp4'" >> video-playlist.txt
+done
+
+# Concatenate looped video
+ffmpeg -y -f concat -safe 0 -i video-playlist.txt -c copy video-looped.mp4
+\`\`\`
+
+**Result:** video-looped.mp4 (same duration as music)
+
+### Step 3: Combine Video + Music
+
+\`\`\`bash
+cd /home/janice
+
+# Final combine
+ffmpeg -y -i video-looped.mp4 -i music-sequential.mp3 -c:v copy -c:a aac -b:a 192k -shortest christian-lofi-\$(date +%Y%m%d-%H%M%S).mp4
+
+# Move to final location
+mv christian-lofi-*.mp4 /home/janice/videos/
+\`\`\`
+
+## Example: 1-Hour Video (All 7 Music Files)
+
+\`\`\`bash
+cd /home/janice
+
+# Step 1: Create 1-hour music playlist (repeat 6x)
+for i in $(seq 1 6); do
+    for f in music/catalyst4god*.mp3; do
+        echo "file '$f'" >> music-1hr.txt
+    done
+done
+
+# Concatenate
+ffmpeg -y -f concat -safe 0 -i music-1hr.txt -c copy music-1hour.mp3
+
+# Step 2: Loop video
+MUSIC_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 music-1hour.mp3)
+VID_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 video-clips/37088-413229662.mp4)
+LOOPS=$(echo "scale=0; $MUSIC_DUR / $VID_DUR" | bc)
+
+for i in $(seq 1 $LOOPS); do
+    echo "file 'video-clips/37088-413229662.mp4'" >> video-1hr.txt
+done
+ffmpeg -y -f concat -safe 0 -i video-1hr.txt -c copy video-1hour.mp4
+
+# Step 3: Combine
+ffmpeg -y -i video-1hour.mp4 -i music-1hour.mp3 -c:v copy -c:a aac -b:a 192k -shortest /home/janice/videos/christian-lofi-1hour.mp4
+
+# Cleanup
+rm -f music-1hour.mp3 video-1hour.mp4 music-1hr.txt video-1hr.txt
+\`\`\`
+
+## Cleanup Commands
+
+\`\`\`bash
+cd /home/janice
+rm -f video-no-audio.mp4 video-looped.mp4 music-sequential.mp3
+rm -f music-1hour.mp3 video-1hour.mp4
+rm -f music-*.txt video-*.txt
+\`\`\`
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| "No such file or directory" | Check paths: /home/janice/music/ and /home/janice/video-clips/ |
+| Video shorter than music | Increase loop count or extend video |
+| Audio/video out of sync | Use -shortest flag in final combine |
+| Low quality output | Use -c:v copy to avoid re-encoding video |
+
+## Expected Duration for 1-Hour Video
+
+- **Music files:** All 7 catalyst4god tracks = ~10 min
+- **Repeat factor:** 6x for 1 hour
+- **Total music files in playlist:** 42
+- **Video loops:** ~372 (based on 20-sec clip)
+
+---
+
+*Last updated: 2026-02-18*`;
+    
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+    
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.header-links a').forEach(a => a.classList.remove('active'));
+      
+      document.getElementById('tab-content-' + tab).classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+      
+      if (tab === 'files') {
+        loadFiles();
+      }
+    }
+    
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+    }
+    
+    function copyPath(path, name) {
+      navigator.clipboard.writeText(path).then(() => {
+        showToast(`Copied: ${name}`);
+      });
+    }
+    
+    function renderFileList(files, containerId, type) {
+      const container = document.getElementById(containerId);
+      
+      if (!files || files.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📁</div>
+            <p>No ${type} files found</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = files.map(f => `
+        <div class="file-item">
+          <div class="file-info">
+            <div class="file-name">${f.name}</div>
+            <div class="file-meta">${formatSize(f.size)}</div>
+          </div>
+          <button class="btn btn-copy" onclick="copyPath('${f.path}', '${f.name}')">📋 Copy Path</button>
+        </div>
+      `).join('');
+    }
+    
+    async function loadFiles() {
+      try {
+        const res = await fetch('/api/files');
+        const data = await res.json();
+        
+        document.getElementById('videoCount').textContent = data.videos.length;
+        document.getElementById('musicCount').textContent = data.music.length;
+        document.getElementById('totalSize').textContent = formatSize(
+          [...data.videos, ...data.music].reduce((sum, f) => sum + f.size, 0)
+        );
+        
+        renderFileList(data.music, 'musicList', 'music');
+        renderFileList(data.videos, 'videoList', 'video');
+      } catch (err) {
+        console.error('Error loading files:', err);
+      }
+    }
+    
+    function copyAllMusic() {
+      const musicPaths = [...document.querySelectorAll('#musicList .file-name')].map(el => el.textContent).join('\n');
+      navigator.clipboard.writeText(musicPaths).then(() => {
+        showToast('All music paths copied!');
+      });
+    }
+    
+    function copyAllVideos() {
+      const videoPaths = [...document.querySelectorAll('#videoList .file-name')].map(el => el.textContent).join('\n');
+      navigator.clipboard.writeText(videoPaths).then(() => {
+        showToast('All video paths copied!');
+      });
+    }
+    
+    async function copyAllForAI() {
+      try {
+        const res = await fetch('/api/files');
+        const data = await res.json();
+        
+        const instructions = `## YouTube Video Creation Instructions
+
+Available Resources:
+- Videos Directory: ${VIDEOS_DIR}
+- Music Directory: ${MUSIC_DIR}
+
+## Music Files:
+${data.music.map(f => `- ${f.path}`).join('\n') || '(none found)'}
+
+## Video Files:
+${data.videos.map(f => `- ${f.path}`).join('\n') || '(none found)'}
+
+## How to Create a Video:
+
+1. **Pick a video** from above
+2. **Pick music** from above  
+3. **Combine with ffmpeg:**
+   ffmpeg -i VIDEO_PATH -i MUSIC_PATH -c:v copy -c:a aac -shortest OUTPUT.mp4
+
+## Example Command:
+ffmpeg -i ${data.videos[0]?.path || 'VIDEO.mp4'} -i ${data.music[0]?.path || 'MUSIC.mp3'} -c:v copy -c:a aac -shortest output.mp4`;
+        
+        navigator.clipboard.writeText(instructions).then(() => {
+          showToast('AI instructions copied!');
+        });
+      } catch (err) {
+        showToast('Error: ' + err.message);
+      }
+    }
+    
+    function copyWorkflow() {
+      const text = document.getElementById('workflowText').value;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Workflow copied!');
+      });
+    }
+    
+    function resetWorkflow() {
+      if (confirm('Reset to default?')) {
+        document.getElementById('workflowText').value = DEFAULT_WORKFLOW;
+        showToast('Reset to default!');
+      }
+    }
+    
+    function copyDocs() {
+      const text = document.getElementById('docsText').value;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Documentation copied!');
+      });
+    }
+    
+    function resetDocs() {
+      if (confirm('Reset to default?')) {
+        document.getElementById('docsText').value = DEFAULT_DOCS;
+        showToast('Documentation reset!');
+      }
+    }
+    
+    loadFiles();
+  </script>
+</body>
+</html>

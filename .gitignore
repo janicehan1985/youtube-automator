@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+dist/
+
+# Environment files
+.env
+.env.local
+client_secrets.json
+token.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Output
+output/videos/*.mp4
+output/music/*
+output/temp/*
+
+# Logs
+*.log
+npm-debug.log*

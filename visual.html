@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>Lofi Nature - 1 Hour Study Session</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            background: linear-gradient(to bottom, 
+                #0a1628 0%,
+                #1a3a5c 30%,
+                #2d5a7b 60%,
+                #4a7c9b 80%,
+                #6b9bb8 100%);
+            font-family: 'Georgia', serif;
+        }
+
+        /* Animated Stars */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 60%;
+            top: 0;
+            left: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Moon */
+        .moon {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle at 30% 30%, #fffde7, #ffd54f);
+            border-radius: 50%;
+            top: 80px;
+            right: 200px;
+            box-shadow: 0 0 60px rgba(255, 253, 231, 0.5);
+        }
+
+        /* Animated Clouds */
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 200px;
+            top: 200px;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 100px;
+            animation: float 60s infinite linear;
+        }
+
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: inherit;
+            border-radius: 50%;
+        }
+
+        .cloud-1 {
+            width: 300px;
+            height: 80px;
+            top: 50px;
+            left: -300px;
+            animation-duration: 80s;
+        }
+
+        .cloud-2 {
+            width: 400px;
+            height: 100px;
+            top: 100px;
+            animation-delay: -30s;
+            animation-duration: 100s;
+        }
+
+        .cloud-3 {
+            width: 250px;
+            height: 70px;
+            top: 30px;
+            animation-delay: -60s;
+            animation-duration: 90s;
+        }
+
+        @keyframes float {
+            from { transform: translateX(-500px); }
+            to { transform: translateX(2500px); }
+        }
+
+        /* Mountains */
+        .mountains {
+            position: absolute;
+            bottom: 200px;
+            left: 0;
+            width: 100%;
+            height: 400px;
+        }
+
+        .mountain {
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-left: 200px solid transparent;
+            border-right: 200px solid transparent;
+            border-bottom: 300px solid rgba(30, 60, 90, 0.6);
+        }
+
+        .mountain:nth-child(1) { left: 100px; border-bottom-color: rgba(20, 50, 80, 0.5); }
+        .mountain:nth-child(2) { left: 400px; border-bottom-width: 400px; border-left-width: 300px; border-right-width: 300px; }
+        .mountain:nth-child(3) { left: 900px; border-bottom-width: 350px; border-left-width: 250px; border-right-width: 250px; }
+        .mountain:nth-child(4) { left: 1400px; border-bottom-width: 280px; }
+        .mountain:nth-child(5) { left: 1700px; border-bottom-width: 320px; }
+
+        /* Pine Trees */
+        .trees {
+            position: absolute;
+            bottom: 180px;
+            width: 100%;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 0;
+        }
+
+        .tree::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 40px;
+            background: #2d1f1a;
+        }
+
+        .tree::after {
+            content: '';
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 120px solid #1a3d2e;
+        }
+
+        .tree:nth-child(2)::after { border-bottom-width: 100px; left: 60px; }
+        .tree:nth-child(3)::after { border-bottom-width: 140px; left: 400px; }
+        .tree:nth-child(4)::after { border-bottom-width: 90px; left: 650px; }
+        .tree:nth-child(5)::after { border-bottom-width: 130px; left: 900px; }
+        .tree:nth-child(6)::after { border-bottom-width: 110px; left: 1100px; }
+        .tree:nth-child(7)::after { border-bottom-width: 100px; left: 1300px; }
+        .tree:nth-child(8)::after { border-bottom-width: 120px; left: 1500px; }
+        .tree:nth-child(9)::after { border-bottom-width: 95px; left: 1700px; }
+
+        /* Water reflection */
+        .water {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(to bottom, 
+                rgba(30, 80, 120, 0.8) 0%,
+                rgba(20, 60, 100, 0.9) 100%);
+            overflow: hidden;
+        }
+
+        .water::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                rgba(255,255,255,0.03) 2px,
+                transparent 4px
+            );
+            animation: shimmer 8s infinite linear;
+        }
+
+        @keyframes shimmer {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: drift 20s infinite ease-in-out;
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-500px) translateX(100px); opacity: 0; }
+        }
+
+        /* Title overlay */
+        .title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            z-index: 100;
+        }
+
+        .title h1 {
+            font-size: 72px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            text-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .title p {
+            font-size: 24px;
+            letter-spacing: 4px;
+            opacity: 0.6;
+        }
+
+        /* Timer */
+        .timer {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="moon"></div>
+    
+    <div class="clouds">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+    </div>
+    
+    <div class="mountains">
+        <div class="mountain"></div>
+        <div class="mountain"></div>
+        <div class="mountain"></div>
+        <div class="mountain"></div>
+        <div class="mountain"></div>
+    </div>
+    
+    <div class="trees">
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+        <div class="tree"></div>
+    </div>
+    
+    <div class="water"></div>
+    
+    <div class="particles" id="particles"></div>
+    
+    <div class="title">
+        <h1>LOFI NATURE</h1>
+        <p>1 Hour Study Session</p>
+    </div>
+    
+    <div class="timer" id="timer">00:00:00 / 01:00:00</div>
+
+    <script>
+        // Generate stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = Math.random() * 3 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.animationDelay = Math.random() * 5 + 's';
+            star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Generate floating particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 60 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (Math.random() * 15 + 15) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Timer
+        let seconds = 0;
+        const timerEl = document.getElementById('timer');
+        setInterval(() => {
+            seconds++;
+            const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
+            const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+            const secs = (seconds % 60).toString().padStart(2, '0');
+            timerEl.textContent = `${hrs}:${mins}:${secs} / 01:00:00`;
+        }, 1000);
+    </script>
+</body>
+</html>
